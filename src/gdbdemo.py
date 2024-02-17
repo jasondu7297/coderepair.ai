@@ -11,7 +11,7 @@ def fetch_and_execute_gdb_command(command, child):
     """
     Execute a GDB command using pexpect and return its output.
     """
-    print(f'Sending command: {command}')
+    # print(f'Sending command: {command}')
     child.sendline(command)
     child.expect(r'\(gdb\) $')
     output = child.before.strip()
@@ -28,7 +28,6 @@ def debug_session(executable):
     fetch_and_execute_gdb_command('break main', child)
     fetch_and_execute_gdb_command('run', child)
     fetch_and_execute_gdb_command('step', child)
-
 
     should_continue = True
     while should_continue:
