@@ -1,7 +1,7 @@
 import logging
 import subprocess
 from typing import List
-from src.agent.agent import Agent, AgentConfig
+from agent import Agent, AgentConfig
 
 class Job():
     exec_path: str

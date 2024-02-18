@@ -1,5 +1,5 @@
 from typing import Any, Dict, List
-from src.command.command import Command, CommandType
+from command import Command, CommandType
 import openai
 import logging
 
