@@ -1,18 +1,20 @@
 import logging
 import subprocess
-from agents.agent import Agent, AgentConfig
+from typing import List
+from src.agent.agent import Agent, AgentConfig
 from pydantic import BaseModel
 
 class Job(BaseModel):
-    exec: str
+    exec_path: str
     compile_cmd: str
 
     # For any job, there will be a minimum of 1 attempt
     _remaining_attempts: int = 9
 
+    @classmethod
     def execute(self) -> int:
         try:
-            result = subprocess.run(self.exec, capture_output=True, text=True, check=True)
+            result = subprocess.run(self.exec_path, capture_output=True, text=True, check=True, shell=True)
         except subprocess.CalledProcessError as e:
             '''
             When check=True, a CalledProcessError exception is thrown if subprocess.run results in non-zero exit code
@@ -22,23 +24,25 @@ class Job(BaseModel):
             logging.info("Program failed with error: ", e.stderr)
 
             gptJob = GPTJob(
-                exec=self.exec,
+                exec_path=self.exec_path,
                 compile_cmd=self.compile_cmd,
                 error_trace=e.stderr
             )
-            while _remaining_attempts:
+            while self._remaining_attempts:
                 # Initiate early stoppage to prevent indefinite iterations
                 # Throw ATTEMPTS_LIMITED_EXCEEDED
-                if _remaining_attempts == 0:
+                if self._remaining_attempts == 0:
                     logging.info("No solution for executable failure found, sorry!")
                     break
 
                 response_msg = gptJob.execute()
                 if gptJob.recompile() and gptJob.run_tests():
                     logging.info("YAYYYYY! " + response_msg)
+                    break
 
-                _remaining_attempts -= 1
+                self._remaining_attempts -= 1
 
+    @classmethod
     def terminate(self):
         pass
 
@@ -50,14 +54,15 @@ class GPTJob(BaseModel):
     '''
     For each execution of GPTJob, we should retain the suggested change, the actual output, and expected output
     '''
-    history: list[GPTJobMetadata]
+    history: list[GPTJobMetadata] = []
     
-    exec: str
+    exec_path: str
     compile_cmd: str
     error_trace: str
 
-    initial_prompt: str = f"""
-Traceback Error: {error_trace}
+    def get_initial_prompt(self) -> str: 
+        return f"""
+Traceback Error: {self.error_trace}
 You are trying to fix the bug in this code. At each point you may specify a single command to run. We will then execute this command and respond to you with the output before you produce your next command. This command can be one of the following three types.
 1. A bash command.
 Expected Structure:
@@ -73,10 +78,10 @@ FINISH!
 
     @classmethod
     def execute(self) -> bool:
-        agentConfig = AgentConfig(openai_key='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', executable_path=exec)
+        agentConfig = AgentConfig(openai_key='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', executable_path=self.exec_path)
         gptAgent = Agent(agentConfig)
 
-        return gptAgent.spawn_gpt(self.initial_prompt)            
+        return gptAgent.spawn_gpt(self.get_initial_prompt())            
 
     @classmethod
     def recompile(self) -> int:
@@ -85,5 +90,5 @@ FINISH!
     
     @classmethod
     def run_tests(self) -> int:
-        response = subprocess.run(self.exec, shell=True, capture_output=True, text=True)
+        response = subprocess.run(self.exec_path, shell=True, capture_output=True, text=True)
         return response.returncode
