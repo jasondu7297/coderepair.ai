@@ -13,12 +13,10 @@ class Agent(BaseModel):
     msg_history: List[Dict[str, Any]]
     executable: str
 
-    @classmethod
     def __init__(self, config: AgentConfig):
         self.executable = config.executable_path
         openai.api_key = config.openai_key
     
-    @classmethod
     def update_msg_history(self, execution_result: str) -> None:
         execution_msg = {
             "role": "user", 
@@ -26,7 +24,6 @@ class Agent(BaseModel):
         }
         self.msg_history.append(execution_msg)
     
-    @classmethod
     def spawn_gpt(self, initial_prompt: str) -> Any:
         should_continue = True
 

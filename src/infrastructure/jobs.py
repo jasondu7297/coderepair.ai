@@ -11,7 +11,6 @@ class Job(BaseModel):
     # For any job, there will be a minimum of 1 attempt
     _remaining_attempts: int = 9
 
-    @classmethod
     def execute(self) -> int:
         try:
             result = subprocess.run(self.exec_path, capture_output=True, text=True, check=True, shell=True)
@@ -42,7 +41,6 @@ class Job(BaseModel):
 
                 self._remaining_attempts -= 1
 
-    @classmethod
     def terminate(self):
         pass
 
@@ -76,19 +74,16 @@ Expected structure:
 FINISH!
 """
 
-    @classmethod
     def execute(self) -> bool:
         agentConfig = AgentConfig(openai_key='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', executable_path=self.exec_path)
         gptAgent = Agent(agentConfig)
 
         return gptAgent.spawn_gpt(self.get_initial_prompt())            
 
-    @classmethod
     def recompile(self) -> int:
         response = subprocess.run(self.compile_cmd, shell=True, capture_output=True, text=True)
         return response.returncode
     
-    @classmethod
     def run_tests(self) -> int:
         response = subprocess.run(self.exec_path, shell=True, capture_output=True, text=True)
         return response.returncode

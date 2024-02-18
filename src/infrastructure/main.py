@@ -8,7 +8,9 @@ def main():
         print("Usage: python script.py <executable_path> <compile_cmd>")
         sys.exit(1)
 
-    job = Job(sys.argv[1], sys.argv[2])
+    job = Job(
+        exec_path=sys.argv[1],
+        compile_cmd=sys.argv[2])
     job.execute()
 
 if __name__ == "__main__":

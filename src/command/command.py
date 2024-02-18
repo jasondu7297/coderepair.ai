@@ -30,7 +30,6 @@ class Command(BaseModel):
         else:
             raise ValueError("GPT response not of valid type")
 
-    @classmethod
     def execute(self) -> Any:
         kwargs = {
             "capture_output": True,
