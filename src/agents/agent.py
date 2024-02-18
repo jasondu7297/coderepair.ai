@@ -1,62 +1,61 @@
-from abc import ABC, abstractmethod
+from pydantic import BaseModel
 from typing import Any, Dict, List
+from src.command.command import Command, CommandType
 import openai
 import logging
 
-class Agent(ABC):
-    cmd_history: List[str]
+class AgentConfig():
+    openai_key: str
+    executable_path: str
+
+class Agent(BaseModel):
+    cmd_history: List[str] = []
+    msg_history: List[Dict[str, Any]]
     executable: str
 
-    def __init__(self, openai_key: str, executable: str):
-        self.cmd_history = []
-        self.executable = executable
-        openai.api_key = openai_key
-
-    def spawn_gpt(self, prompt, tools) -> Any:
-        text_file_content = ""
-
-        full_prompt = f"""
-                        Listen carefully, GPT-4. Your task is to debug code based on the following context:
-                        - Contents of the text file: """ + text_file_content + """
-                        - Executable for GDB to use: """ + self.executable + """
-                        - History of commands and outputs: """ + "\n".join(self.cmd_history) + """
-
-                        {prompt}
-                        """
-
+    def __init__(self, config: AgentConfig):
+        self.executable = config.executable_path
+        openai.api_key = config.openai_key
+    
+    def update_msg_history(self, execution_result: str) -> None:
+        execution_msg = {
+            "role": "user", 
+            "content": execution_result,
+        }
+        self.msg_history.append(execution_msg)
+    
+    def spawn_gpt(self, initial_prompt: str) -> Any:
         should_continue = True
+
+        '''
+        Define the behaviour of GPT4 model
+        '''
+        current_msg = {
+            "role": "system", 
+            "content": initial_prompt,
+        }
+        self.msg_history.append(current_msg)
+
         while should_continue:
             response = openai.chat.completions.create(
                 model="gpt-4-turbo-preview",
                 messages=[
                     {
                         "role": "user",
-                        "content": full_prompt,
+                        "content": self.msg_history[-1],
                     },
                 ],
-                tools=tools
             )
 
             response_msg = response.choices[0].message
             logging.info('Action generation completed: ', response_msg)
 
-            if response_msg.tool_calls:
-                logging.info(dict(response_msg.tool_calls[0]))
-                exec_result = self.fetch_and_execute_cmd(response_msg.tool_calls[0], self.executable)
-                self.cmd_history.append(f'Command: {response_msg}\nOutput: {exec_result}')
+            if response_msg.content:
+                serialized_cmd = Command(response_msg.content)
 
-            elif response_msg.content:
-                if response_msg.content.upper().startswith("FINISH"):
+                if serialized_cmd.cmd_type == CommandType.END:
                     logging.info("Finishing code repair session based on OpenAI suggestion:", response_msg)
                     return response_msg
 
-                exec_result = self.fetch_and_execute_cmd(response_msg.content)
-                self.cmd_history.append(f'Command: {response_msg}\nOutput: {exec_result}')
-                
-    @abstractmethod
-    def generate_tools(self) -> Dict[str, Any]:
-        pass
-    
-    @abstractmethod
-    def fetch_and_execute_cmd(self, command: str, executable: str) -> Any:
-        pass
+                execution_result = serialized_cmd.execute()            
+                self.update_msg_history(execution_result)
