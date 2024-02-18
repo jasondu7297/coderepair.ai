@@ -51,14 +51,13 @@ class Agent():
                     },
                 ],
             )
-
             response_msg = response.choices[0].message
 
-            # print('Action generation completed: ', response_msg)
-
             if response_msg.content:
-                cmd_str = response_msg.content.strip()
+                cmd_str = response_msg.content.strip()                
                 serialized_cmd = Command(cmd_str, self.use_gdb)
+
+                print(cmd_str)
 
                 if serialized_cmd.cmd_type == CommandType.END:
                     if self.use_gdb:

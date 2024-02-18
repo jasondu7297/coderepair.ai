@@ -16,6 +16,12 @@ def parse_args() -> Namespace:
         help="Command to recompile your executable as inputed with -e/--executable flag",
     )
 
+    parser.add_argument(
+        "-i",
+        "--ipt",
+        help="std input to pass to tested program",
+    )
+
     args = parser.parse_args()
 
     if len(vars(args)) < 2:
@@ -27,11 +33,12 @@ def main():
     args = parse_args()
     job = Job(
         exec_path=args.executable,
-        compile_cmd=args.compile_cmd)
+        compile_cmd=args.compile_cmd,
+        ipt = args.ipt)
 
     try:
         job.execute()
-    except ATTEMPTS_LIMITED_EXCEEDED as e:
+    except ATTEMPTS_LIMIT_EXCEEDED as e:
         print(f"Program debugging failed with error message: {e.message}")
     
 

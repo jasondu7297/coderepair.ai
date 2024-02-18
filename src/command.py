@@ -39,6 +39,4 @@ class Command():
             kwargs["shell"] = True
         
         response = subprocess.run(self.cmd_str, **kwargs)
-        print("Command: " + self.cmd_str)
-        print("Output: " + response.stdout)
         return response.stdout

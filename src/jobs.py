@@ -10,13 +10,14 @@ class Job():
     # For any job, there will be a minimum of 1 attempt
     _remaining_attempts: int = 9
 
-    def __init__(self, exec_path: str, compile_cmd: str):
+    def __init__(self, exec_path: str, compile_cmd: str, ipt: str):
         self.exec_path = exec_path
         self.compile_cmd = compile_cmd
+        self.input = ipt
 
     def execute(self) -> int:
         try:
-            result = subprocess.run(self.exec_path, capture_output=True, text=True, check=True, shell=True)
+            result = subprocess.run(self.exec_path, input=self.input, capture_output=True, text=True, check=True, shell=True)
         except subprocess.CalledProcessError as e:
             '''
             When check=True, a CalledProcessError exception is thrown if subprocess.run results in non-zero exit code
@@ -28,23 +29,23 @@ class Job():
             gptJob = GPTJob(
                 exec_path=self.exec_path,
                 compile_cmd=self.compile_cmd,
-                error_trace=e.stderr
+                error_trace=e.stderr,
+                ipt=self.input
             )
-            while self._remaining_attempts:
-                # Initiate early stoppage to prevent indefinite iterations
-                # Throw ATTEMPTS_LIMITED_EXCEEDED
-                if self._remaining_attempts == 0:
-                    raise ATTEMPTS_LIMIT_EXCEEDED
+            # Initiate early stoppage to prevent indefinite iterations
+            # Throw ATTEMPTS_LIMIT_EXCEEDED
+            if self._remaining_attempts == 0:
+                raise ATTEMPTS_LIMIT_EXCEEDED
 
-                response_msg = gptJob.execute()
-                recompile = gptJob.recompile()
-                run_tests = gptJob.run_tests()
+            response_msg = gptJob.execute()
+            recompile = gptJob.recompile()
+            run_tests = gptJob.run_tests()
 
-                if recompile == 0 and run_tests == 0:
-                    print("YAYYYYY! " + response_msg)
-                    return 0
+            if recompile == 0 and run_tests == 0:
+                print("YAYYYYY! " + response_msg)
+                return 0
 
-                self._remaining_attempts -= 1
+            self._remaining_attempts -= 1
 
     def terminate(self):
         pass
@@ -63,10 +64,11 @@ class GPTJob():
     compile_cmd: str
     error_trace: str
 
-    def __init__(self, exec_path: str, compile_cmd: str, error_trace: str):
+    def __init__(self, exec_path: str, compile_cmd: str, error_trace: str, ipt: str):
         self.exec_path = exec_path
         self.compile_cmd = compile_cmd
         self.error_trace = error_trace
+        self.input = ipt
 
     def execute(self) -> bool:
         agentConfig = AgentConfig(openai_key='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', executable_path=self.exec_path)
@@ -79,7 +81,7 @@ class GPTJob():
         return response.returncode
     
     def run_tests(self) -> int:
-        response = subprocess.run(self.exec_path, shell=True, capture_output=True, text=True)
+        response = subprocess.run(self.exec_path, input=self.input, shell=True, capture_output=True, text=True)
         return response.returncode
 
 class ATTEMPTS_LIMIT_EXCEEDED(Exception):
