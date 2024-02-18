@@ -1,17 +1,30 @@
 from abc import ABC, abstractmethod
-from pydantic import BaseModel
+from typing import Any, Dict, List
 import openai
 import logging
 
-class Agent(BaseModel, ABC):
-    cmd_history: list[str]
+class Agent(ABC):
+    cmd_history: List[str]
+    executable: str
 
-    def __init__(self, openapi_key):
-        openai.api_key = openapi_key
+    def __init__(self, openapi_key: str, executable: str):
         self.cmd_history = []
+        self.executable = executable
+        openai.api_key = openapi_key
 
     # TODO: Fix prompt to be dynamic with cmd_history
-    def spawn_gpt(self, prompt, tools):
+    def spawn_gpt(self, prompt, tools) -> Any:
+        text_file_content = ""
+
+        full_prompt = f"""
+                        Listen carefully, GPT-4. Your task is to debug code based on the following context:
+                        - Contents of the text file: """ + text_file_content + """
+                        - Executable for GDB to use: """ + self.executable + """
+                        - History of commands and outputs: """ + "\n".join(self.cmd_history) + """
+
+                        {prompt}
+                        """
+
         should_continue = True
         while should_continue:
             response = openai.chat.completions.create(
@@ -19,28 +32,32 @@ class Agent(BaseModel, ABC):
                 messages=[
                     {
                         "role": "user",
-                        "content": prompt,
+                        "content": full_prompt,
                     },
                 ],
                 tools=tools
             )
 
-            response_msg = response.choices[0].message.content.strip()
-
+            response_msg = response.choices[0].message
             logging.info('Action generation completed: ', response_msg)
 
-            if response.msg.upper().startswith("FINISH"):
-                logging.info("Finishing code repair session based on OpenAI suggestion:", response_msg)
-                break
+            if response_msg.tool_calls:
+                logging.info(dict(response_msg.tool_calls[0]))
+                exec_result = self.fetch_and_execute_cmd(response_msg.tool_calls[0])
+                self.cmd_history.append(f'Command: {response_msg}\nOutput: {exec_result}')
 
-            if response_msg:
-                result = self.fetch_and_execute_cmd(response_msg)
-                self.cmd_history.append(f'Command: {response_msg}\nOutput: {result}')
+            elif response_msg.content:
+                if response_msg.content.upper().startswith("FINISH"):
+                    logging.info("Finishing code repair session based on OpenAI suggestion:", response_msg)
+                    return response_msg
 
+                exec_result = self.fetch_and_execute_cmd(response_msg.content)
+                self.cmd_history.append(f'Command: {response_msg}\nOutput: {exec_result}')
+                
     @abstractmethod
-    def generate_tools(self):
+    def generate_tools(self) -> Dict[str, Any]:
         pass
     
     @abstractmethod
-    def fetch_and_execute_cmd(self, command):
+    def fetch_and_execute_cmd(self, command: str) -> Any:
         pass

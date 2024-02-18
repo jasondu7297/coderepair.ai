@@ -1,10 +1,8 @@
 from agent import Agent
 import openai
 
-from pydantic import BaseModel
-
-class IOAgent(Agent, BaseModel):
-    def generate_tools():
+class IOAgent(Agent):
+    def generate_tools(self):
         pass
 
     def fetch_and_execute_cmd(self):
