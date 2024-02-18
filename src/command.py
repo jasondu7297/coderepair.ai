@@ -35,7 +35,7 @@ class Command():
             "text": True,
         }
 
-        if self.cmd_type == CommandType.GDB:
+        if self.cmd_type == CommandType.BASH:
             kwargs["shell"] = True
 
         response = subprocess.run(self.cmd_str, **kwargs)
