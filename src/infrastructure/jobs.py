@@ -2,9 +2,8 @@ import logging
 import subprocess
 from typing import List
 from src.agent.agent import Agent, AgentConfig
-from pydantic import BaseModel
 
-class Job(BaseModel):
+class Job():
     exec_path: str
     compile_cmd: str
 
@@ -44,11 +43,11 @@ class Job(BaseModel):
     def terminate(self):
         pass
 
-class GPTJobMetadata(BaseModel):
+class GPTJobMetadata():
     changes: dict
     failed: bool
 
-class GPTJob(BaseModel):
+class GPTJob():
     '''
     For each execution of GPTJob, we should retain the suggested change, the actual output, and expected output
     '''

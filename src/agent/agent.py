@@ -1,14 +1,13 @@
-from pydantic import BaseModel
 from typing import Any, Dict, List
 from src.command.command import Command, CommandType
 import openai
 import logging
 
-class AgentConfig(BaseModel):
+class AgentConfig():
     openai_key: str
     executable_path: str
 
-class Agent(BaseModel):
+class Agent():
     cmd_history: List[str] = []
     msg_history: List[Dict[str, Any]]
     executable: str
