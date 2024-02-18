@@ -16,13 +16,13 @@ class Command():
 
     def __init__(self, cmd_raw):
         if cmd_raw.upper().startswith("BASH"):
-            self.cmd_str[len("BASH:"):].strip()
+            self.cmd_str = cmd_raw[len("BASH COMMAND:"):].strip()
             self.cmd_type = CommandType.BASH
         elif cmd_raw.upper().startswith("GDB"):
-            self.cmd_str[len("GDB:"):].strip()
+            self.cmd_str = cmd_raw[len("GDB COMMAND:"):].strip()
             self.cmd_type = CommandType.GDB
         elif cmd_raw.upper().startswith("WRITE"):
-            self.cmd_str[len("WRITE:"):].strip()
+            self.cmd_str = cmd_raw[len("WRITE"):].strip()
             self.cmd_type = CommandType.WRITE
         elif cmd_raw.upper() == "FINISH!":
             self.cmd_type = CommandType.END

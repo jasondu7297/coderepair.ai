@@ -49,7 +49,7 @@ class Agent():
             logging.info('Action generation completed: ', response_msg)
 
             if response_msg.content:
-                serialized_cmd = Command(response_msg.content)
+                serialized_cmd = Command(response_msg.content.strip())
 
                 if serialized_cmd.cmd_type == CommandType.END:
                     logging.info("Finishing code repair session based on OpenAI suggestion:", response_msg)

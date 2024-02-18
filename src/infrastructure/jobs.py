@@ -94,4 +94,5 @@ GDB COMMAND: <place gdb command to execute here>
 3. Termination Command. Output this command if you think you have fixed the bug in the code and no more changes have to be made to the code. If you output the termination command, no more subsequent commands.
 Expected structure:
 FINISH!
+You must not provide any additional explanations or elaborations. Only provide the command in the structure specified above. Nothing more, nothing less.
 """
