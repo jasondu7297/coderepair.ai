@@ -3,7 +3,7 @@ from argparse import ArgumentParser, Namespace
 from jobs import Job
 
 def parse_args() -> Namespace:
-    parser = ArgumentParser()
+    parser = ArgumentParser(prog='')
 
     parser.add_argument(
         "-e",
