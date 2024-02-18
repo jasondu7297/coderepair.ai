@@ -4,10 +4,8 @@ import subprocess
 import openai
 
 class GDBAgent(Agent):
-    executable: str
-
-    def __init__(self, executable: str):
-        self.exeuctable = executable
+    def __init__(self, openai_key: str, executable: str):
+        super().__init__(openai_key=openai_key, executable=executable)
 
     def generate_tools(self) -> Dict[str, Any]:
         return []

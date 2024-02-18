@@ -7,12 +7,11 @@ class Agent(ABC):
     cmd_history: List[str]
     executable: str
 
-    def __init__(self, openapi_key: str, executable: str):
+    def __init__(self, openai_key: str, executable: str):
         self.cmd_history = []
         self.executable = executable
-        openai.api_key = openapi_key
+        openai.api_key = openai_key
 
-    # TODO: Fix prompt to be dynamic with cmd_history
     def spawn_gpt(self, prompt, tools) -> Any:
         text_file_content = ""
 
@@ -43,7 +42,7 @@ class Agent(ABC):
 
             if response_msg.tool_calls:
                 logging.info(dict(response_msg.tool_calls[0]))
-                exec_result = self.fetch_and_execute_cmd(response_msg.tool_calls[0])
+                exec_result = self.fetch_and_execute_cmd(response_msg.tool_calls[0], self.executable)
                 self.cmd_history.append(f'Command: {response_msg}\nOutput: {exec_result}')
 
             elif response_msg.content:
@@ -59,5 +58,5 @@ class Agent(ABC):
         pass
     
     @abstractmethod
-    def fetch_and_execute_cmd(self, command: str) -> Any:
+    def fetch_and_execute_cmd(self, command: str, executable: str) -> Any:
         pass

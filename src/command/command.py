@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from pydantic import BaseModel
 
 class Command(BaseModel):
@@ -7,12 +8,13 @@ class Command(BaseModel):
     params: list[str]
 
     @classmethod
-    def __init__(self, response: dict):
+    def __init__(self, response: dict, executable: str):
         function = response.function
         self.cmd_str = function.name
 
         arguments = function.arguments
-        self.params = [f"{key}={value}" for key, value in json.loads(arguments).items()]
+        self.params = [f"{key}=\"{value}\"" for key, value in json.loads(arguments).items()]
+        self.params.append(f"executable=\"{executable}\"")
 
     @classmethod
     def serialize(self) -> str:
@@ -21,7 +23,3 @@ class Command(BaseModel):
     @classmethod
     def deserialize(self) -> str:
         pass
-
-    @classmethod
-    def execute(self) -> None:
-        eval(self.serialize())
