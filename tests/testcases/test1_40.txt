@@ -1,0 +1,17 @@
+for _ in range(int(input())):
+  n=int(input())
+  l=list(map(int,input().split()))
+  l.sort()
+  max_min=-99999999
+  s=0
+  for i in range(n):
+    #print(l)
+    x=l.pop(0)-s
+    m=x
+    s+=x
+    max_min=max(max_min,m)
+
+  print(max_min)
+
+
+

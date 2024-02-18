@@ -1,0 +1,31 @@
+# t = int(input())
+
+# while t>0:
+#     n = int(input())
+#     a = list(map(int, input().split()))
+#     a.sort()
+#     for index in range(n-1):
+#         print(a)
+#         a[index+1]-=(a[index]*(n-index-1-1))
+#     print(a)
+#     print(a[-1])
+#     t-=1
+
+from heapq import heapify, heappush, heappop
+
+t = int(input())
+
+while t>0:
+    n = int(input())
+    a = list(map(int, input().split()))
+    heapify(a)
+    min = a[0]
+    for i in range(n-1):
+        e = heappop(a)
+        if e>min:
+            min = e
+        for j in range(n-i-1):
+            a[j]-=e
+        heapify(a)
+    print(min)
+    t-=1

@@ -1,0 +1,36 @@
+from heapq import heapify,heappush,heappop,heappushpop
+from collections import defaultdict as dd, deque as dq,Counter as C
+from math import factorial as f ,ceil,gcd,sqrt,log
+from bisect import bisect_left as bl ,bisect_right as br
+from itertools import combinations as c,permutations as p
+from math import factorial as f ,ceil,gcd,sqrt,log
+from sys import stdin
+input = stdin.readline
+mp = lambda : map(int,input().split())
+it = lambda: int(input())
+ls = lambda : list(input().strip().split())
+mt = lambda  r : [ ls() for _ in range(r)]
+lcm = lambda a,b : (a*b)//gcd(a,b)
+
+for _ in range(it()):
+	a = it()
+	b = list(mp())
+	b.sort()
+	if len(b)==1:
+		print(b[0])
+		continue
+	prev = 0
+	ans =None
+	for i in range(a):
+		prev+=b[i]
+		if i!=a-1:
+			if (b[i+1]-prev)<b[i]:
+				ans = b[i]
+				break
+			else:
+				b[i+1]-=prev
+
+	if ans ==None :
+		print(b[-1])
+	else:
+		print(ans)

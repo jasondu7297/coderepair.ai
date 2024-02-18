@@ -1,0 +1,27 @@
+for _ in range(int(input())):
+    n = int(input())
+    a = list(map(int, input().split()))
+    if n == 1:
+        print(a[0])
+    elif a[-1] < 0:
+        print(a[-1] - sum(a[:-1]))
+    else:
+        a.sort()
+        plus = 0
+        for i in range(n):
+            if a[i] < 0:
+                plus -= a[i]
+            else:
+                break
+        a = a[i:]
+        if len(a) == 1:
+            print(a[0] + plus)
+        else:
+            ans1 = min(a)
+            ans = min(a)
+            for i in range(len(a) - 1, -1, -1):
+                ans = max(ans, a[i] - a[i - 1])
+            if ans == ans1:
+                print(ans + plus)
+            else:
+                print(ans)

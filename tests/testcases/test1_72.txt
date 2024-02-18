@@ -1,0 +1,194 @@
+import java.io.*;
+import java.math.*;
+import java.util.*;
+import java.util.Map.*;
+
+public class Main
+{
+	static String shengxiao[] =
+	{ "rat", "ox", "tiger", "rabbit", "dragon", "snake", "horse", "goat", "monkey", "rooster", "dog", "pig" };
+	static String shengxiaoo[] =
+	{ "Rat", "Ox", "Tiger", "Rabbit", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig" };
+	static int month[] =
+	{ 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+	static int zhong[] =
+	{ -1, 1, 0, 0, -1, -1, 1, 1 };
+	static int heng[] =
+	{ 0, 0, -1, 1, -1, 1, -1, 1 };
+	static int zhongg[] =
+	{ -1, -1, 0, 1, 1, 1, 0, -1 };
+	static int hengg[] =
+	{ 0, 1, 1, 1, 0, -1, -1, -1 };
+	static int inf = Integer.MAX_VALUE;
+	static long inff = Long.MAX_VALUE;
+
+	static int mod = (int) 998244353;
+	static int N = (int) 36 + 10;
+	static int M = (int) 1e6 + 10;
+
+	static void init()
+	{
+
+	}
+
+	// static boolean is(int x)
+	static boolean is()
+	{
+
+		return true;
+	}
+
+	// static void solve(String s)
+	// static void solve(int n)
+	// static void solve(long n)
+	static void solve()
+	{
+		int n = sc.nextInt();
+		long shu[] = new long[n + 10];
+		for (int i = 1; i <= n; i++)
+			shu[i] = sc.nextLong();
+		if (n == 1)
+		{
+			out.println(shu[1]);
+			return;
+		}
+
+		long max = Integer.MIN_VALUE;
+
+		Arrays.sort(shu, 1, n + 1);
+		long yuan = 0;
+		for (int i = 1; i <= n; i++)
+		{
+			long a = shu[i] - yuan;
+			max = Math.max(max, a);
+			yuan += a;
+		}
+		out.println(max);
+
+	}
+
+	public static void main(String[] args) throws IOException
+	{
+		init();
+
+//		while (sc.hasNext())
+		{
+			int t = 1;
+//			int t = sc.nextInt();
+			for (int x = 1; x <= t; x++)
+//				solve();
+			{
+				int n = sc.nextInt();
+				Long[] a = new Long[n];
+				for (int i = 0; i < n; i++)
+					a[i] = sc.nextLong();
+				if (n == 1)
+					out.println(a[0]);
+				else
+				{
+					Arrays.sort(a);
+					long ans = a[1] - a[0];
+					for (int i = 2; i < n; i++)
+					{
+						ans = Math.max(ans, a[i] - a[i - 1]);
+					}
+					out.println(Math.max(ans, a[0]));
+				}
+			}
+
+			// String s = sc.next();
+			// solve(s);
+
+			out.flush();
+		}
+
+		out.close();
+	}
+
+	static InputStream inputStream = System.in;
+	static InputReader sc = new InputReader(inputStream);
+	static PrintWriter out = new PrintWriter(System.out);
+
+	static class InputReader
+	{
+		public BufferedReader reader;
+		public StringTokenizer tokenizer;
+
+		public InputReader(InputStream stream)
+		{
+			reader = new BufferedReader(new InputStreamReader(stream), 32768);
+			tokenizer = null;
+		}
+
+		public String next()
+		{
+			while (tokenizer == null || !tokenizer.hasMoreTokens())
+			{
+				try
+				{
+					tokenizer = new StringTokenizer(reader.readLine());
+				} catch (IOException e)
+				{
+					throw new RuntimeException(e);
+				}
+			}
+			return tokenizer.nextToken();
+		}
+
+		boolean hasNext()
+		{
+			while (tokenizer == null || !tokenizer.hasMoreTokens())
+			{
+				try
+				{
+					tokenizer = new StringTokenizer(reader.readLine());
+				} catch (Exception e)
+				{
+					return false;
+					// TODO: handle exception
+				}
+			}
+			return true;
+		}
+
+		public String nextLine()
+		{
+			String str = null;
+			try
+			{
+				str = reader.readLine();
+			} catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			return str;
+		}
+
+		public int nextInt()
+		{
+			return Integer.parseInt(next());
+		}
+
+		public long nextLong()
+		{
+			return Long.parseLong(next());
+		}
+
+		public Double nextDouble()
+		{
+			return Double.parseDouble(next());
+		}
+
+		public BigInteger nextBigInteger()
+		{
+			return new BigInteger(next());
+		}
+
+		public BigDecimal nextBigDecimal()
+		{
+			return new BigDecimal(next());
+		}
+
+	}
+
+}

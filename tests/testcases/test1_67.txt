@@ -1,0 +1,32 @@
+import sys
+input = lambda: sys.stdin.readline().rstrip()
+sys.setrecursionlimit(10**5)
+INF = 10**18
+
+import heapq  # heapqライブラリのimport
+def solve():
+    N = int(input())
+    A = list(map(int,input().split()))
+    if N == 1:
+        print(A[0])
+        return
+
+    heapq.heapify(A)
+    cnt = 1
+    ans = heapq.heappop(A)
+    add = ans
+    while cnt < N+1:
+        n = heapq.heappop(A)        
+        cnt += 1
+        ans = max(ans, n-add)
+        add += n-add
+        cnt += 1
+        # print(n,add,ans)
+    
+    print(ans)
+
+Q = int(input())
+for _ in range(Q):
+    solve()
+
+

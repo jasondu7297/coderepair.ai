@@ -1,0 +1,25 @@
+t = int(input())
+res = []
+for j in range(t):
+  n = int(input())
+  a = list(map(int, input().split()))
+  minA = [0] * n
+  newA = a.copy()
+  x = 0
+  minA[n - 1] = min(a)
+  x = minA[n - 1]
+  del newA[newA.index(x)]
+  newA = list(map(lambda y: y - x, newA))
+  for i in range(n - 1):
+    minA[n - 2 - i] = max(minA[n - 2 - i + 1], min(newA))
+    if minA[n - 2 - i + 1] <= minA[n - 2 - i]:
+      x = minA[n - 2 - i]
+      if x in newA:
+        del newA[newA.index(x)]
+      newA = list(map(lambda y: y - x, newA))
+    else:
+      break
+  res.append(x)
+
+for index in range(t):
+  print(res[index])

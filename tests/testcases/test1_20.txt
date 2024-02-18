@@ -1,0 +1,14 @@
+t=int(input())
+for i in range(t):
+    n=int(input())
+    arr=list(map(int,input().split()))
+    list_min=[]
+    if(len(arr)==1):
+        list_min.append(arr[0])
+    while(len(arr)>1):
+        mini=min(arr)
+        list_min.append(mini)
+        del(arr[arr.index(mini)])
+        arr=[x-mini for x in arr]
+    print("gg: ")
+    print(max(list_min))

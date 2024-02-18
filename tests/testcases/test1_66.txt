@@ -1,0 +1,54 @@
+import sys, collections, math, bisect, heapq, random, functools
+
+input = sys.stdin.readline
+out = sys.stdout.flush
+
+
+def solve():
+    n = int(input())
+    queue = []
+    a = list(map(int, input().split()))
+    va = collections.Counter(a)
+    for v in va:
+        heapq.heappush(queue,[v,va[v]])
+    diff = 0
+    k = len(queue)
+    while k > 1 and queue[0][0] - diff <= 0:
+        cur,cnt = heapq.heappop(queue)
+        cur -= diff
+        diff += cur
+        k -= 1
+
+    flag = 1
+    ans = -1
+    while k > 1:
+        minv,cnt = heapq.heappop(queue)
+        k -= 1
+        if queue[0][0] - minv >= minv - diff:
+            cur,cnt1 = queue[0][0],queue[0][1]
+            cur -= diff
+            diff += minv - diff
+        else:
+            flag = 0
+            ans = minv - diff
+            break
+
+    if not flag:
+        print(ans)
+    else:
+        if queue[0][0] - diff < 0:
+           if queue[0][1] > 1:
+              print(0)
+           else:
+              print(queue[0][0])
+        else:
+           print(queue[0][0] - diff)
+
+
+
+
+
+
+if __name__ == '__main__':
+    for i in range(int(input())):
+        solve()
