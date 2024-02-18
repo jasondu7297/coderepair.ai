@@ -1,7 +1,0 @@
-for _ in range(int(input())):
-    n = int(input())
-    line = [int(ch) for ch in input().split()]
-    line, k = sorted(line), line[0]
-    for i in range(1, n):
-        k = max(k, line[i] - line[i - 1])
-    print(k)
