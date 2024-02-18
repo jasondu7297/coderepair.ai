@@ -2,7 +2,6 @@ import json
 import subprocess
 from enum import Enum
 from typing import Any
-from pydantic import BaseModel
 
 class CommandType(Enum):
     BASH = 0
@@ -10,7 +9,7 @@ class CommandType(Enum):
     WRITE = 2
     END = 3
 
-class Command(BaseModel):
+class Command():
     cmd_str: str
     cmd_type: CommandType
     params: list[str] = []
@@ -30,7 +29,6 @@ class Command(BaseModel):
         else:
             raise ValueError("GPT response not of valid type")
 
-    @classmethod
     def execute(self) -> Any:
         kwargs = {
             "capture_output": True,

@@ -2,16 +2,18 @@ import logging
 import subprocess
 from typing import List
 from src.agent.agent import Agent, AgentConfig
-from pydantic import BaseModel
 
-class Job(BaseModel):
+class Job():
     exec_path: str
     compile_cmd: str
 
     # For any job, there will be a minimum of 1 attempt
     _remaining_attempts: int = 9
 
-    @classmethod
+    def __init__(self, exec_path: str, compile_cmd: str):
+        self.exec_path = exec_path
+        self.compile_cmd = compile_cmd
+
     def execute(self) -> int:
         try:
             result = subprocess.run(self.exec_path, capture_output=True, text=True, check=True, shell=True)
@@ -42,15 +44,14 @@ class Job(BaseModel):
 
                 self._remaining_attempts -= 1
 
-    @classmethod
     def terminate(self):
         pass
 
-class GPTJobMetadata(BaseModel):
+class GPTJobMetadata():
     changes: dict
     failed: bool
 
-class GPTJob(BaseModel):
+class GPTJob():
     '''
     For each execution of GPTJob, we should retain the suggested change, the actual output, and expected output
     '''
@@ -59,6 +60,25 @@ class GPTJob(BaseModel):
     exec_path: str
     compile_cmd: str
     error_trace: str
+
+    def __init__(self, exec_path: str, compile_cmd: str, error_trace: str):
+        self.exec_path = exec_path
+        self.compile_cmd = compile_cmd
+        self.error_trace = error_trace
+
+    def execute(self) -> bool:
+        agentConfig = AgentConfig(openai_key='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', executable_path=self.exec_path)
+        gptAgent = Agent(agentConfig)
+
+        return gptAgent.spawn_gpt(self.get_initial_prompt())            
+
+    def recompile(self) -> int:
+        response = subprocess.run(self.compile_cmd, shell=True, capture_output=True, text=True)
+        return response.returncode
+    
+    def run_tests(self) -> int:
+        response = subprocess.run(self.exec_path, shell=True, capture_output=True, text=True)
+        return response.returncode
 
     def get_initial_prompt(self) -> str: 
         return f"""
@@ -75,20 +95,3 @@ GDB COMMAND: <place gdb command to execute here>
 Expected structure:
 FINISH!
 """
-
-    @classmethod
-    def execute(self) -> bool:
-        agentConfig = AgentConfig(openai_key='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', executable_path=self.exec_path)
-        gptAgent = Agent(agentConfig)
-
-        return gptAgent.spawn_gpt(self.get_initial_prompt())            
-
-    @classmethod
-    def recompile(self) -> int:
-        response = subprocess.run(self.compile_cmd, shell=True, capture_output=True, text=True)
-        return response.returncode
-    
-    @classmethod
-    def run_tests(self) -> int:
-        response = subprocess.run(self.exec_path, shell=True, capture_output=True, text=True)
-        return response.returncode

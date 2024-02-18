@@ -1,24 +1,25 @@
-from pydantic import BaseModel
 from typing import Any, Dict, List
 from src.command.command import Command, CommandType
 import openai
 import logging
 
-class AgentConfig(BaseModel):
+class AgentConfig():
     openai_key: str
     executable_path: str
 
-class Agent(BaseModel):
+    def __init__(self, openai_key: str, executable_path: str):
+        self.openai_key = openai_key
+        self.executable_path = executable_path
+
+class Agent():
     cmd_history: List[str] = []
-    msg_history: List[Dict[str, Any]]
+    msg_history: List[Dict[str, Any]] = []
     executable: str
 
-    @classmethod
     def __init__(self, config: AgentConfig):
         self.executable = config.executable_path
         openai.api_key = config.openai_key
     
-    @classmethod
     def update_msg_history(self, execution_result: str) -> None:
         execution_msg = {
             "role": "user", 
@@ -26,7 +27,6 @@ class Agent(BaseModel):
         }
         self.msg_history.append(execution_msg)
     
-    @classmethod
     def spawn_gpt(self, initial_prompt: str) -> Any:
         should_continue = True
 
@@ -42,12 +42,7 @@ class Agent(BaseModel):
         while should_continue:
             response = openai.chat.completions.create(
                 model="gpt-4-turbo-preview",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": self.msg_history[-1],
-                    },
-                ],
+                messages=self.msg_history,
             )
 
             response_msg = response.choices[0].message
