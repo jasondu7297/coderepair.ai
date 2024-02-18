@@ -1,6 +1,6 @@
 import sys
 from argparse import ArgumentParser, Namespace
-from jobs import Job
+from jobs import Job, ATTEMPTS_LIMIT_EXCEEDED
 
 def parse_args() -> Namespace:
     parser = ArgumentParser(prog='coderepair')
@@ -28,7 +28,12 @@ def main():
     job = Job(
         exec_path=args.executable,
         compile_cmd=args.compile_cmd)
-    job.execute()
+
+    try:
+        job.execute()
+    except ATTEMPTS_LIMITED_EXCEEDED as e:
+        print(f"Program debugging failed with error message: {e.message}")
+    
 
 if __name__ == "__main__":
     main()

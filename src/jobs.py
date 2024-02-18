@@ -22,8 +22,8 @@ class Job():
             When check=True, a CalledProcessError exception is thrown if subprocess.run results in non-zero exit code
             If CalledProcessError exception thrown, init GPTJob to execute with GPT assistance
             '''
-            logging.info("Program failed with output: ", e.stdout)
-            logging.info("Program failed with error: ", e.stderr)
+            print("Program failed with output: ", e.stdout)
+            print("Program failed with error: ", e.stderr)
 
             gptJob = GPTJob(
                 exec_path=self.exec_path,
@@ -34,13 +34,15 @@ class Job():
                 # Initiate early stoppage to prevent indefinite iterations
                 # Throw ATTEMPTS_LIMITED_EXCEEDED
                 if self._remaining_attempts == 0:
-                    logging.info("No solution for executable failure found, sorry!")
-                    break
+                    raise ATTEMPTS_LIMIT_EXCEEDED
 
                 response_msg = gptJob.execute()
-                if gptJob.recompile() and gptJob.run_tests():
-                    logging.info("YAYYYYY! " + response_msg)
-                    break
+                recompile = gptJob.recompile()
+                run_tests = gptJob.run_tests()
+
+                if recompile == 0 and run_tests == 0:
+                    print("YAYYYYY! " + response_msg)
+                    return 0
 
                 self._remaining_attempts -= 1
 
@@ -79,3 +81,8 @@ class GPTJob():
     def run_tests(self) -> int:
         response = subprocess.run(self.exec_path, shell=True, capture_output=True, text=True)
         return response.returncode
+
+class ATTEMPTS_LIMIT_EXCEEDED(Exception):
+    def __init__(self):
+        self.message = f"Exceeded limit of maximum attempts"
+        super().__init__(self.message)

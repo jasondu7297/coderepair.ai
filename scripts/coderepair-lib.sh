@@ -9,6 +9,7 @@
 # Variables
 ############################################
 
+export SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 export REPO_ROOT="$(cd ${SCRIPT_DIR} && git rev-parse --show-superproject-working-tree --show-toplevel | head -1)"/src
 
 ############################################

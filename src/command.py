@@ -14,7 +14,7 @@ class Command():
     cmd_type: CommandType
     params: list[str] = []
 
-    def __init__(self, cmd_raw):
+    def __init__(self, cmd_raw: str, use_gdb: bool):
         if cmd_raw.upper().startswith("BASH"):
             self.cmd_str = cmd_raw[len("BASH COMMAND:"):].strip()
             self.cmd_type = CommandType.BASH
@@ -24,10 +24,9 @@ class Command():
         elif cmd_raw.upper().startswith("WRITE"):
             self.cmd_str = cmd_raw[len("WRITE"):].strip()
             self.cmd_type = CommandType.WRITE
-        elif cmd_raw.upper() == "FINISH!":
+        elif cmd_raw.upper().startswith("FINISH!"):
             self.cmd_type = CommandType.END
         else:
-            print(f'command: {cmd_raw}')
             raise ValueError("GPT response not of valid type")
 
     def execute(self) -> Any:
@@ -38,6 +37,8 @@ class Command():
 
         if self.cmd_type == CommandType.BASH:
             kwargs["shell"] = True
-
-        response = subprocess.run(self.cmd_str.split(), **kwargs)
+        
+        response = subprocess.run(self.cmd_str, **kwargs)
+        print("Command: " + self.cmd_str)
+        print("Output: " + response.stdout)
         return response.stdout
