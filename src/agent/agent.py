@@ -7,9 +7,13 @@ class AgentConfig():
     openai_key: str
     executable_path: str
 
+    def __init__(self, openai_key: str, executable_path: str):
+        self.openai_key = openai_key
+        self.executable_path = executable_path
+
 class Agent():
     cmd_history: List[str] = []
-    msg_history: List[Dict[str, Any]]
+    msg_history: List[Dict[str, Any]] = []
     executable: str
 
     def __init__(self, config: AgentConfig):
@@ -38,12 +42,7 @@ class Agent():
         while should_continue:
             response = openai.chat.completions.create(
                 model="gpt-4-turbo-preview",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": self.msg_history[-1],
-                    },
-                ],
+                messages=self.msg_history,
             )
 
             response_msg = response.choices[0].message
