@@ -55,7 +55,7 @@ class GPTJob(BaseModel):
     exec: str
     compile_cmd: str
 
-    def execute():
+    def execute() -> bool:
         ''' 
         Iterate in the following loop:
           - Initiate GPT prompt
