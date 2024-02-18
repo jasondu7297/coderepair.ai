@@ -34,7 +34,15 @@ def debug_session(executable):
         # Set your OpenAI API key here (recommended to use environment variable for security)
 
         # Get the content of the file being debugged, replace this with actual content or fetching mechanism
-        text_file_content = "contents of the file being debugged"
+        text_file_content = """int main() {
+    int a = 10;
+    int b = 20;
+    int segmentation = 20;
+    int d = 20;
+    int *ptr = NULL;
+    *ptr = 10;  // Dereferencing a NULL pointer will cause a segmentation fault
+    return 0;
+}"""
 
         # Replace 'info locals' and 'where' with actual commands you need to run and fetch their outputs
         info_locals = fetch_and_execute_gdb_command('info locals', child)
@@ -73,7 +81,7 @@ You are to respond with exactly one GDB command—nothing more, nothing less. Un
         if completion.lower().startswith("finish"):
 
             print("Finishing debug session based on OpenAI suggestion:", completion)
-            break
+            return [completion, history_buffer]
 
         if completion:
             result = fetch_and_execute_gdb_command(completion, child)
