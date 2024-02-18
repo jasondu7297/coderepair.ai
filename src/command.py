@@ -27,6 +27,7 @@ class Command():
         elif cmd_raw.upper() == "FINISH!":
             self.cmd_type = CommandType.END
         else:
+            print(f'command: {cmd_raw}')
             raise ValueError("GPT response not of valid type")
 
     def execute(self) -> Any:
@@ -38,5 +39,5 @@ class Command():
         if self.cmd_type == CommandType.BASH:
             kwargs["shell"] = True
 
-        response = subprocess.run(self.cmd_str, **kwargs)
+        response = subprocess.run(self.cmd_str.split(), **kwargs)
         return response.stdout

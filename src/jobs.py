@@ -68,9 +68,9 @@ class GPTJob():
 
     def execute(self) -> bool:
         agentConfig = AgentConfig(openai_key='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', executable_path=self.exec_path)
-        gptAgent = Agent(agentConfig)
+        gptAgent = Agent(agentConfig, self.error_trace)
 
-        return gptAgent.spawn_gpt(self.get_initial_prompt())            
+        return gptAgent.spawn_gpt()            
 
     def recompile(self) -> int:
         response = subprocess.run(self.compile_cmd, shell=True, capture_output=True, text=True)
@@ -79,20 +79,3 @@ class GPTJob():
     def run_tests(self) -> int:
         response = subprocess.run(self.exec_path, shell=True, capture_output=True, text=True)
         return response.returncode
-
-    def get_initial_prompt(self) -> str: 
-        return f"""
-Traceback Error: {self.error_trace}
-You are trying to fix the bug in this code. At each point you may specify a single command to run. We will then execute this command and respond to you with the output before you produce your next command. This command can be one of the following three types.
-1. A bash command.
-Expected Structure:
-BASH COMMAND: <place bash command to execute here>
-Note that if you use the bash commands to modify a source code file, I want you to only do this via find and replace operations.
-2. A gdb debugger command.
-Expected structure:
-GDB COMMAND: <place gdb command to execute here>
-3. Termination Command. Output this command if you think you have fixed the bug in the code and no more changes have to be made to the code. If you output the termination command, no more subsequent commands.
-Expected structure:
-FINISH!
-You must not provide any additional explanations or elaborations. Only provide the command in the structure specified above. Nothing more, nothing less.
-"""
