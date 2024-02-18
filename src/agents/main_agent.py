@@ -1,5 +1,5 @@
 from agent import Agent
-from command import Command
+from src.command.command import Command
 from gdb_agent import GDBAgent
 from io_agent import IOAgent
 from typing import Any, Dict
